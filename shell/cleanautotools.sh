@@ -1,45 +1,48 @@
 #!/bin/bash
 set -xv
 
-##Clean generate files by Makefile
-make clean
-##Clean Makefile
-make distclean
+echo "Running make clean..."
+if ! make clean; then
+    echo "Error: 'make clean' failed." >&2
+    exit 1
+fi
 
-##backup
-cp configure.ac configure.ac.bak
-cp configure.in configure.in.bak
-cp Makefile.am Makefile.am.bak
+echo "Running make distclean..."
+if ! make distclean; then
+    echo "Error: 'make distclean' failed." >&2
+    exit 1
+fi
 
-##aclocal
-rm -rf aclocal.m4
-rm -rf autom4te.cache
-rm -rf autoscan.log
+echo "Cleaning up remaining files..."
 
-##autoheader
-rm -rf config.h.in
+if [ -f aclocal.m4 ]; then
+    echo "Removing aclocal.m4..."
+    if ! rm aclocal.m4; then
+        echo "Error: Failed to remove aclocal.m4." >&2
+        # Optionally exit here if this is critical
+        # exit 1 
+    fi
+fi
 
-##libtoolize
-rm -rf ltmain.sh
+if [ -d autom4te.cache ]; then
+    echo "Removing autom4te.cache/..."
+    if ! rm -rf autom4te.cache; then
+        echo "Error: Failed to remove autom4te.cache/." >&2
+        # Optionally exit here if this is critical
+        # exit 1
+    fi
+fi
 
-##automake -a
-rm -rf install-sh
-rm -rf missing
-rm -rf depcomp
+# Check for configure.in and remove it if it exists, as per original script's implicit behavior
+if [ -f configure.in ]; then
+    echo "Removing configure.in..."
+    if ! rm configure.in; then
+        echo "Error: Failed to remove configure.in." >&2
+        # Optionally exit here if this is critical
+        # exit 1
+    fi
+fi
 
-##.configure
-rm -rf config.guess
-rm -rf Makefile.in
-rm -rf stamp-h1
-rm -rf .deps
-rm -rf configure
-rm -rf config.sub
-rm -rf config.status
-rm -rf configure.scan
-rm -rf configure.in
-
-rm -rf compile
-rm -rf config.log
-
+echo "Autotools cleaning process completed."
 
 #end
